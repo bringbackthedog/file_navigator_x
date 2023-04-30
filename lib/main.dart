@@ -1,12 +1,8 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-
 import 'dart:io';
 
 import 'package:cliif/constants.dart';
 import 'package:cliif/extensions.dart';
-import 'package:cliif/file_associations.dart';
 import 'package:cliif/utils.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -18,10 +14,10 @@ class KeyExampleApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       home: Scaffold(
-        appBar: AppBar(title: const Text('Key Handling Example')),
-        body: const MyKeyExample(),
+        backgroundColor: kBacgroundColor,
+        body: MyKeyExample(),
       ),
     );
   }
@@ -39,10 +35,6 @@ class _MyKeyExampleState extends State<MyKeyExample> {
   final FocusNode _focusNode = FocusNode();
 
   final ScrollController _scrollController = ScrollController();
-
-  // DEBUG
-  // static final debugPath = '${Utils.homeDir}/development/practice/flutter';
-  // var files = Utils.listDirContent(path: debugPath);
 
   var files = Utils.listDirContent();
 
@@ -94,7 +86,7 @@ class _MyKeyExampleState extends State<MyKeyExample> {
     if (scrollOffset <= _scrollController.position.pixels) {
       _scrollController.animateTo(
         scrollOffset - kFileSystemEntityTileSize,
-        duration: Duration(milliseconds: 150),
+        duration: const Duration(milliseconds: 150),
         curve: Curves.easeOut,
       );
     } else if (scrollOffset + 20 >=
@@ -102,7 +94,7 @@ class _MyKeyExampleState extends State<MyKeyExample> {
             _scrollController.position.viewportDimension) {
       _scrollController.animateTo(
         scrollOffset - _scrollController.position.viewportDimension + 60.0,
-        duration: Duration(milliseconds: 150),
+        duration: const Duration(milliseconds: 150),
         curve: Curves.easeOut,
       );
     }
@@ -186,17 +178,19 @@ class _MyKeyExampleState extends State<MyKeyExample> {
   @override
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
+
     return Column(
       children: [
         Text('Current path: ${Utils.currentPath}'),
         Expanded(
           child: Container(
-            color: Colors.white,
+            // color: Colors.white,
             alignment: Alignment.center,
             child: DefaultTextStyle(
               style: textTheme.bodyLarge!.copyWith(
                 fontFamily: 'monospace',
                 fontSize: 16.0,
+                color: kFileSystemEntityTextColor,
               ),
               child: ListView.builder(
                 controller: _scrollController,
@@ -212,11 +206,14 @@ class _MyKeyExampleState extends State<MyKeyExample> {
                       focusNode: _focusNode,
                       onKey: _handleKeyEvent,
                       child: Container(
-                        color: Colors.blue,
+                        color: kSelectionColor,
                         child: Row(
                           children: [
-                            Icon(icon),
-                            SizedBox(width: 10),
+                            Icon(
+                              icon,
+                              color: kFileSystemEntityIconColor,
+                            ),
+                            const SizedBox(width: 10),
                             Flexible(
                               child: Text(
                                 files[index].name,
@@ -231,8 +228,11 @@ class _MyKeyExampleState extends State<MyKeyExample> {
                     return Container(
                       child: Row(
                         children: [
-                          Icon(icon),
-                          SizedBox(width: 10),
+                          Icon(
+                            icon,
+                            color: kFileSystemEntityIconColor,
+                          ),
+                          const SizedBox(width: 10),
                           Flexible(
                             child: Text(
                               files[index].name,
@@ -248,33 +248,6 @@ class _MyKeyExampleState extends State<MyKeyExample> {
             ),
           ),
         ),
-      ],
-    );
-  }
-}
-
-/// Nav bar and spacing
-class NavBar extends StatelessWidget {
-  const NavBar({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          // 1/5 of screen width
-          width: double.infinity,
-          constraints: BoxConstraints(
-            minWidth: 200,
-            maxWidth: 300,
-          ),
-          child: Text('defaultTargetPlatform.toString()'),
-        ),
-        SizedBox(width: 10),
-        VerticalDivider(thickness: 1, width: 1),
-        SizedBox(width: 10),
       ],
     );
   }
