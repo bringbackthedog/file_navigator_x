@@ -15,22 +15,23 @@ class KeyExampleApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         backgroundColor: kBacgroundColor,
-        body: MyKeyExample(),
+        body: App(),
       ),
     );
   }
 }
 
-class MyKeyExample extends StatefulWidget {
-  const MyKeyExample({super.key});
+class App extends StatefulWidget {
+  const App({super.key});
 
   @override
-  State<MyKeyExample> createState() => _MyKeyExampleState();
+  State<App> createState() => _AppState();
 }
 
-class _MyKeyExampleState extends State<MyKeyExample> {
+class _AppState extends State<App> {
   // The node used to request the keyboard focus.
   final FocusNode _focusNode = FocusNode();
 
@@ -179,19 +180,21 @@ class _MyKeyExampleState extends State<MyKeyExample> {
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
 
-    return Column(
-      children: [
-        Text('Current path: ${Utils.currentPath}'),
-        Expanded(
-          child: Container(
-            // color: Colors.white,
-            alignment: Alignment.center,
-            child: DefaultTextStyle(
-              style: textTheme.bodyLarge!.copyWith(
-                fontFamily: 'monospace',
-                fontSize: 16.0,
-                color: kFileSystemEntityTextColor,
-              ),
+    return DefaultTextStyle(
+      style: textTheme.bodyLarge!.copyWith(
+        fontFamily: 'monospace',
+        fontSize: 16.0,
+        color: kFileSystemEntityTextColor,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('${Utils.currentPath}'),
+          const SizedBox(height: 10),
+          Expanded(
+            child: Container(
+              // color: Colors.white,
+              alignment: Alignment.center,
               child: ListView.builder(
                 controller: _scrollController,
                 itemCount: files.length,
@@ -247,8 +250,8 @@ class _MyKeyExampleState extends State<MyKeyExample> {
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

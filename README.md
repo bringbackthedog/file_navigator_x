@@ -4,6 +4,12 @@ A simple and efficient file system interface.
 
 Move across directories, create files and directories, and read and write files with a simple and intuitive interface.
 
+## Platform Support
+  
+-[x] MacOS  
+-[ ] Linux  
+-[ ] Windows  
+
 ## Usage
 
 The app will open up on your home directory. You can move around only using the arrow keys.

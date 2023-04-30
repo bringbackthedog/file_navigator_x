@@ -66,7 +66,7 @@ class Utils {
     // var files = <FileSystemEntity>[];
 
     final dir = Directory(path);
-    final files = dir.listSync().where((file) {
+    final List<FileSystemEntity> files = dir.listSync().where((file) {
       bool isFile = FileSystemEntity.isFileSync(file.path);
       bool isDir = FileSystemEntity.isDirectorySync(file.path);
 
@@ -90,11 +90,11 @@ class Utils {
     }).toList();
 
     // Sort alphabetically
-    files.sort((a, b) {
-      return a.name.toLowerCase().compareTo(b.name.toLowerCase());
-    });
-
-    // for (var file in files) {
+    files.sort(
+      (a, b) {
+        return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+      },
+    );
 
     return files;
   }
