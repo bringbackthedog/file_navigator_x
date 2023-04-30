@@ -1,4 +1,4 @@
-# cliif
+# File Navigator X
 
 A simple and efficient file system interface. 
 
@@ -24,7 +24,7 @@ You can associate file extensions and applications.
 
 <!-- TODO: Setup config file. For now modify file_associations.dart -->
 
-<!-- For example, you can associate `.py` files with `python3` and `.md` files with `vim`. To do so, create a file called `.cliifrc` in your home directory and add the following lines:
+<!-- For example, you can associate `.py` files with `python3` and `.md` files with `vim`. To do so, create a file called `.fnxrc` in your home directory and add the following lines:
 
 ```
 .py python3

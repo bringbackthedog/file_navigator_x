@@ -2,8 +2,8 @@
 
 import 'dart:io';
 
-import 'package:cliif/extensions.dart';
-import 'package:cliif/file_associations.dart';
+import 'package:fnx/extensions.dart';
+import 'package:fnx/file_associations.dart';
 import 'package:flutter/foundation.dart';
 
 class Utils {

@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "cliif" "\0"
+            VALUE "FileDescription", "fnx" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "cliif" "\0"
+            VALUE "InternalName", "fnx" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2023 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "cliif.exe" "\0"
-            VALUE "ProductName", "cliif" "\0"
+            VALUE "OriginalFilename", "fnx.exe" "\0"
+            VALUE "ProductName", "fnx" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

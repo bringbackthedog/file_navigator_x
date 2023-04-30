@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:cliif/constants.dart';
-import 'package:cliif/extensions.dart';
-import 'package:cliif/utils.dart';
+import 'package:fnx/constants.dart';
+import 'package:fnx/extensions.dart';
+import 'package:fnx/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';

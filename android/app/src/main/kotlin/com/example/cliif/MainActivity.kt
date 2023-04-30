@@ -1,4 +1,4 @@
-package com.example.cliif
+package com.example.fnx
 
 import io.flutter.embedding.android.FlutterActivity
 
