@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
 import 'package:flutter/foundation.dart';
@@ -37,7 +38,13 @@ class _MyKeyExampleState extends State<MyKeyExample> {
   // The node used to request the keyboard focus.
   final FocusNode _focusNode = FocusNode();
 
-  var files = Utils.listDirContent();
+  final ScrollController _scrollController = ScrollController();
+
+  // DEBUG
+  static final debugPath = Utils.homeDir + '/development/practice/flutter';
+  var files = Utils.listDirContent(path: debugPath);
+
+  // var files = Utils.listDirContent();
 
   int _currentSelection = 0;
 
@@ -53,12 +60,77 @@ class _MyKeyExampleState extends State<MyKeyExample> {
     // });
   }
 
+  @override
+  void initState() {
+    super.initState();
+    // _focusNode.addListener(_onFocusChange);
+  }
+
   // Focus nodes need to be disposed.
   @override
   void dispose() {
     _focusNode.dispose();
     super.dispose();
   }
+
+  /// Gets the position of a widget in the list view.
+  void _getWidgetPosition() {
+    final RenderObject? renderObject = _focusNode.context?.findRenderObject();
+    if (renderObject == null) {
+      throw Exception('Cannot find render object for focus node.');
+    }
+
+    final RenderAbstractViewport viewport =
+        RenderAbstractViewport.of(renderObject);
+    final double scrollOffset =
+        viewport.getOffsetToReveal(renderObject, 0.0).offset;
+
+    // DEBUG
+    debugPrint('scrollOffset: $scrollOffset');
+    // _scrollController.animateTo(
+    //   scrollOffset,
+    //   duration: Duration(milliseconds: 300),
+    //   curve: Curves.easeOut,
+    // );
+
+    // if the widget will be off-screen, scroll
+    if (scrollOffset < _scrollController.position.pixels) {
+      _scrollController.jumpTo(scrollOffset);
+    } else if (scrollOffset + 20 >
+        _scrollController.position.pixels +
+            _scrollController.position.viewportDimension) {
+      _scrollController.jumpTo(
+          // scrollOffset - _scrollController.position.viewportDimension + 20.0);
+          scrollOffset - _scrollController.position.viewportDimension + 60.0);
+    }
+  }
+
+  // void _onFocusChange() {
+  //   // if (_focusNode.hasFocus) {
+  //   if (true) {
+  //     // If the widget associated with the focus node is off-screen,
+  //     // scroll to it.
+  //     final RenderObject? renderObject = _focusNode.context?.findRenderObject();
+  //     if (renderObject == null) {
+  //       throw Exception('Cannot find render object for focus node.');
+  //       // return;
+  //     }
+
+  //     final RenderAbstractViewport viewport =
+  //         RenderAbstractViewport.of(renderObject);
+  //     final double scrollOffset =
+  //         viewport.getOffsetToReveal(renderObject, 0.0).offset;
+
+  //     // DEBUG
+  //     debugPrint('scrollOffset: $scrollOffset');
+  //     _scrollController.animateTo(
+  //       scrollOffset,
+  //       duration: Duration(milliseconds: 300),
+  //       curve: Curves.easeOut,
+  //     );
+  //     // setState(() {});
+  //   }
+  // }
 
   // Handles the key events from the Focus widget and updates the
   // _message.
@@ -70,10 +142,37 @@ class _MyKeyExampleState extends State<MyKeyExample> {
     switch (event.logicalKey) {
       case LogicalKeyboardKey.arrowUp:
         currentSelection--;
+        _getWidgetPosition();
+        // // if we can scroll up
+        // bool canScrollUp = _scrollController.position.pixels > 0.0;
+        // if (canScrollUp) {
+        //   _scrollController.jumpTo(
+        //     // current position
+        //     _scrollController.position.pixels -
+        //         // item height
+        //         20.0,
+        //   );
+        // }
+        // _onFocusChange();
+
         break;
 
       case LogicalKeyboardKey.arrowDown:
         currentSelection++;
+        _getWidgetPosition();
+        // _onFocusChange();
+
+        // bool canScrollDown = _scrollController.position.pixels <
+        //     _scrollController.position.maxScrollExtent;
+
+        // if (canScrollDown) {
+        //   _scrollController.jumpTo(
+        //     // current position
+        //     _scrollController.position.pixels +
+        //         // item height
+        //         20.0,
+        //   );
+        // }
         break;
 
       case LogicalKeyboardKey.enter:
@@ -139,36 +238,40 @@ class _MyKeyExampleState extends State<MyKeyExample> {
                 fontFamily: 'monospace',
                 fontSize: 16.0,
               ),
-              child: Focus(
-                focusNode: _focusNode,
-                onKey: _handleKeyEvent,
-                child: AnimatedBuilder(
-                  animation: _focusNode,
-                  builder: (BuildContext context, Widget? child) {
-                    if (!_focusNode.hasFocus) {
-                      return GestureDetector(
-                        onTap: () {
-                          FocusScope.of(context).requestFocus(_focusNode);
-                        },
-                        child: const Text('Click to focus'),
-                      );
-                    }
-                    return ListView.builder(
-                      itemCount: files.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Container(
-                          color: index == _currentSelection
-                              // ? Colors.blue.withOpacity(0.3)
-                              ? Colors.blue
-                              : Colors.transparent,
-                          child: Text(files[index].name),
-                        );
-
-                        // return Text(files[index].path);
-                      },
+              child: ListView.builder(
+                controller: _scrollController,
+                itemCount: files.length,
+                itemExtent: 20.0,
+                itemBuilder: (BuildContext context, int index) {
+                  if (index == currentSelection) {
+                    // Is there space to scroll?
+                    // if (_scrollController.position.maxScrollExtent <
+                    //     index * 20.0) {
+                    //   _scrollController.jumpTo(
+                    //     index * 20.0,
+                    //   );
+                    // }
+                    // _scrollController.position.ensureVisible(
+                    //   index * 20.0,
+                    //   duration: Duration(milliseconds: 300),
+                    //   curve: Curves.easeOut,
+                    // );
+                    // _scrollController.animateTo(
+                    //   index * 20.0,
+                    //   duration: Duration(milliseconds: 300),
+                    //   curve: Curves.easeOut,
+                    // );
+                    return Focus(
+                      focusNode: _focusNode,
+                      onKey: _handleKeyEvent,
+                      child: Container(
+                        color: Colors.blue,
+                        child: Text(files[index].name),
+                      ),
                     );
-                  },
-                ),
+                  }
+                  return Text(files[index].name);
+                },
               ),
             ),
           ),
@@ -225,7 +328,7 @@ class Utils {
     return homeDir;
   }
 
-  /// List all files in home directory
+  /// List all files and directories in a directory
   static List<FileSystemEntity> listDirContent({
     String? path,
     bool showHidden = false,
@@ -260,6 +363,11 @@ class Utils {
 
       return true;
     }).toList();
+
+    // Sort alphabetically
+    files.sort((a, b) {
+      return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+    });
 
     // for (var file in files) {
     //   bool isFile = FileSystemEntity.isFileSync(file.path);
