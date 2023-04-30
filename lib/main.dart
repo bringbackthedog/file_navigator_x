@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:cliif/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -82,26 +83,26 @@ class _MyKeyExampleState extends State<MyKeyExample> {
 
     final RenderAbstractViewport viewport =
         RenderAbstractViewport.of(renderObject);
+
     final double scrollOffset =
         viewport.getOffsetToReveal(renderObject, 0.0).offset;
 
-    // DEBUG
-    debugPrint('scrollOffset: $scrollOffset');
-    // _scrollController.animateTo(
-    //   scrollOffset,
-    //   duration: Duration(milliseconds: 300),
-    //   curve: Curves.easeOut,
-    // );
-
-    // if the widget will be off-screen, scroll
-    if (scrollOffset < _scrollController.position.pixels) {
-      _scrollController.jumpTo(scrollOffset);
-    } else if (scrollOffset + 20 >
+    // if the widget will be off-screen, scrollz
+    // ScrollActivityDelegate delegate = _scrollController.position.activity!.delegate;
+    if (scrollOffset <= _scrollController.position.pixels) {
+      _scrollController.animateTo(
+        scrollOffset - kFileSystemEntityTileSize,
+        duration: Duration(milliseconds: 150),
+        curve: Curves.easeOut,
+      );
+    } else if (scrollOffset + 20 >=
         _scrollController.position.pixels +
             _scrollController.position.viewportDimension) {
-      _scrollController.jumpTo(
-          // scrollOffset - _scrollController.position.viewportDimension + 20.0);
-          scrollOffset - _scrollController.position.viewportDimension + 60.0);
+      _scrollController.animateTo(
+        scrollOffset - _scrollController.position.viewportDimension + 60.0,
+        duration: Duration(milliseconds: 150),
+        curve: Curves.easeOut,
+      );
     }
   }
 
@@ -150,7 +151,7 @@ class _MyKeyExampleState extends State<MyKeyExample> {
         //     // current position
         //     _scrollController.position.pixels -
         //         // item height
-        //         20.0,
+        //         kFileSystemEntityTileSize,
         //   );
         // }
         // _onFocusChange();
@@ -170,7 +171,7 @@ class _MyKeyExampleState extends State<MyKeyExample> {
         //     // current position
         //     _scrollController.position.pixels +
         //         // item height
-        //         20.0,
+        //         kFileSystemEntityTileSize,
         //   );
         // }
         break;
@@ -204,6 +205,8 @@ class _MyKeyExampleState extends State<MyKeyExample> {
         break;
 
       default:
+        debugPrint('Key not handled: ${event.logicalKey}');
+        return KeyEventResult.ignored;
     }
     // setState(
     //   () {
@@ -241,23 +244,23 @@ class _MyKeyExampleState extends State<MyKeyExample> {
               child: ListView.builder(
                 controller: _scrollController,
                 itemCount: files.length,
-                itemExtent: 20.0,
+                itemExtent: kFileSystemEntityTileSize,
                 itemBuilder: (BuildContext context, int index) {
                   if (index == currentSelection) {
                     // Is there space to scroll?
                     // if (_scrollController.position.maxScrollExtent <
-                    //     index * 20.0) {
+                    //     index * kFileSystemEntityTileSize) {
                     //   _scrollController.jumpTo(
-                    //     index * 20.0,
+                    //     index * kFileSystemEntityTileSize,
                     //   );
                     // }
                     // _scrollController.position.ensureVisible(
-                    //   index * 20.0,
+                    //   index * kFileSystemEntityTileSize,
                     //   duration: Duration(milliseconds: 300),
                     //   curve: Curves.easeOut,
                     // );
                     // _scrollController.animateTo(
-                    //   index * 20.0,
+                    //   index * kFileSystemEntityTileSize,
                     //   duration: Duration(milliseconds: 300),
                     //   curve: Curves.easeOut,
                     // );
