@@ -3,13 +3,12 @@
 import 'dart:io';
 
 import 'package:cliif/constants.dart';
+import 'package:cliif/extensions.dart';
+import 'package:cliif/file_associations.dart';
+import 'package:cliif/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
-
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 void main() => runApp(const KeyExampleApp());
@@ -42,23 +41,20 @@ class _MyKeyExampleState extends State<MyKeyExample> {
   final ScrollController _scrollController = ScrollController();
 
   // DEBUG
-  static final debugPath = Utils.homeDir + '/development/practice/flutter';
-  var files = Utils.listDirContent(path: debugPath);
+  // static final debugPath = '${Utils.homeDir}/development/practice/flutter';
+  // var files = Utils.listDirContent(path: debugPath);
 
-  // var files = Utils.listDirContent();
+  var files = Utils.listDirContent();
 
   int _currentSelection = 0;
 
   int get currentSelection => _currentSelection;
 
-  static int count = 0;
   set currentSelection(int index) {
     if (index < 0 || index >= files.length) {
       return;
     }
-    // setState(() {
     _currentSelection = index;
-    // });
   }
 
   @override
@@ -74,8 +70,9 @@ class _MyKeyExampleState extends State<MyKeyExample> {
     super.dispose();
   }
 
-  /// Gets the position of a widget in the list view.
-  void _getWidgetPosition() {
+  /// Gets the position of a widget in the list view and scrolls if we are
+  /// at the edge of the viewport.
+  void _updateScrollController() {
     final RenderObject? renderObject = _focusNode.context?.findRenderObject();
     if (renderObject == null) {
       throw Exception('Cannot find render object for focus node.');
@@ -87,8 +84,13 @@ class _MyKeyExampleState extends State<MyKeyExample> {
     final double scrollOffset =
         viewport.getOffsetToReveal(renderObject, 0.0).offset;
 
-    // if the widget will be off-screen, scrollz
     // ScrollActivityDelegate delegate = _scrollController.position.activity!.delegate;
+    // DEBUG
+    // debugPrint("scrollOffset: $scrollOffset, "
+    //     "pixels: ${_scrollController.position.pixels}, "
+    //     "viewportDimension: ${_scrollController.position.viewportDimension}");
+
+    // if the widget will be off-screen, scroll it into view
     if (scrollOffset <= _scrollController.position.pixels) {
       _scrollController.animateTo(
         scrollOffset - kFileSystemEntityTileSize,
@@ -106,33 +108,6 @@ class _MyKeyExampleState extends State<MyKeyExample> {
     }
   }
 
-  // void _onFocusChange() {
-  //   // if (_focusNode.hasFocus) {
-  //   if (true) {
-  //     // If the widget associated with the focus node is off-screen,
-  //     // scroll to it.
-  //     final RenderObject? renderObject = _focusNode.context?.findRenderObject();
-  //     if (renderObject == null) {
-  //       throw Exception('Cannot find render object for focus node.');
-  //       // return;
-  //     }
-
-  //     final RenderAbstractViewport viewport =
-  //         RenderAbstractViewport.of(renderObject);
-  //     final double scrollOffset =
-  //         viewport.getOffsetToReveal(renderObject, 0.0).offset;
-
-  //     // DEBUG
-  //     debugPrint('scrollOffset: $scrollOffset');
-  //     _scrollController.animateTo(
-  //       scrollOffset,
-  //       duration: Duration(milliseconds: 300),
-  //       curve: Curves.easeOut,
-  //     );
-  //     // setState(() {});
-  //   }
-  // }
-
   // Handles the key events from the Focus widget and updates the
   // _message.
   KeyEventResult _handleKeyEvent(FocusNode node, RawKeyEvent event) {
@@ -143,40 +118,21 @@ class _MyKeyExampleState extends State<MyKeyExample> {
     switch (event.logicalKey) {
       case LogicalKeyboardKey.arrowUp:
         currentSelection--;
-        _getWidgetPosition();
-        // // if we can scroll up
-        // bool canScrollUp = _scrollController.position.pixels > 0.0;
-        // if (canScrollUp) {
-        //   _scrollController.jumpTo(
-        //     // current position
-        //     _scrollController.position.pixels -
-        //         // item height
-        //         kFileSystemEntityTileSize,
-        //   );
-        // }
-        // _onFocusChange();
+        setState(() {});
+        _updateScrollController();
 
         break;
 
       case LogicalKeyboardKey.arrowDown:
         currentSelection++;
-        _getWidgetPosition();
-        // _onFocusChange();
+        setState(() {});
+        _updateScrollController();
 
-        // bool canScrollDown = _scrollController.position.pixels <
-        //     _scrollController.position.maxScrollExtent;
-
-        // if (canScrollDown) {
-        //   _scrollController.jumpTo(
-        //     // current position
-        //     _scrollController.position.pixels +
-        //         // item height
-        //         kFileSystemEntityTileSize,
-        //   );
-        // }
         break;
 
       case LogicalKeyboardKey.enter:
+        // Open file or directory
+        Utils.open(files[currentSelection].path);
         break;
 
       case LogicalKeyboardKey.arrowRight:
@@ -186,6 +142,10 @@ class _MyKeyExampleState extends State<MyKeyExample> {
           files = Utils.listDirContent(path: Utils.currentPath);
           currentSelection = 0;
         }
+        //  else if (FileSystemEntity.isFileSync(files[currentSelection].path)) {
+        //   // Utils.openWithVSCode(files[currentSelection].path);
+        //   Utils.open(files[currentSelection].path);
+        // }
         setState(() {});
 
         break;
@@ -201,24 +161,21 @@ class _MyKeyExampleState extends State<MyKeyExample> {
           currentSelection = 0;
         }
         setState(() {});
+        break;
 
+      case LogicalKeyboardKey.space:
+        // Open file or directory
+        Utils.open(Utils.currentPath);
+
+        setState(() {});
         break;
 
       default:
         debugPrint('Key not handled: ${event.logicalKey}');
         return KeyEventResult.ignored;
     }
-    // setState(
-    //   () {
-    //     if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-    //       currentSelection--;
-    //     } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-    //       currentSelection++;
-    //     }
-    //   },
-    // );
 
-    setState(() {});
+    // setState(() {});
 
     // Returning true tells the framework that we handled the event.
     // Otherwise, the key event cascades to the widgets in the focused
@@ -246,34 +203,46 @@ class _MyKeyExampleState extends State<MyKeyExample> {
                 itemCount: files.length,
                 itemExtent: kFileSystemEntityTileSize,
                 itemBuilder: (BuildContext context, int index) {
+                  var icon = files[index] is Directory
+                      ? Icons.folder_outlined
+                      : Icons.insert_drive_file_outlined;
+
                   if (index == currentSelection) {
-                    // Is there space to scroll?
-                    // if (_scrollController.position.maxScrollExtent <
-                    //     index * kFileSystemEntityTileSize) {
-                    //   _scrollController.jumpTo(
-                    //     index * kFileSystemEntityTileSize,
-                    //   );
-                    // }
-                    // _scrollController.position.ensureVisible(
-                    //   index * kFileSystemEntityTileSize,
-                    //   duration: Duration(milliseconds: 300),
-                    //   curve: Curves.easeOut,
-                    // );
-                    // _scrollController.animateTo(
-                    //   index * kFileSystemEntityTileSize,
-                    //   duration: Duration(milliseconds: 300),
-                    //   curve: Curves.easeOut,
-                    // );
                     return Focus(
                       focusNode: _focusNode,
                       onKey: _handleKeyEvent,
                       child: Container(
                         color: Colors.blue,
-                        child: Text(files[index].name),
+                        child: Row(
+                          children: [
+                            Icon(icon),
+                            SizedBox(width: 10),
+                            Flexible(
+                              child: Text(
+                                files[index].name,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  } else {
+                    return Container(
+                      child: Row(
+                        children: [
+                          Icon(icon),
+                          SizedBox(width: 10),
+                          Flexible(
+                            child: Text(
+                              files[index].name,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
                     );
                   }
-                  return Text(files[index].name);
                 },
               ),
             ),
@@ -309,116 +278,4 @@ class NavBar extends StatelessWidget {
       ],
     );
   }
-}
-
-class Utils {
-  static String _currentPath = homeDir;
-
-  static get currentPath => _currentPath;
-
-  static void changePath(String newPath) {
-    _currentPath = newPath;
-  }
-
-  /// Get the user's home directory path
-  static String get homeDir {
-    String? homeDir = Platform.environment['HOME'];
-
-    if (homeDir == null) {
-      throw Exception('Could not find HOME environment variable');
-    }
-
-    return homeDir;
-  }
-
-  /// List all files and directories in a directory
-  static List<FileSystemEntity> listDirContent({
-    String? path,
-    bool showHidden = false,
-    bool showDirectories = true,
-    bool showFiles = true,
-  }) {
-    path ??= homeDir;
-
-    // var filePaths = <String>[];
-    // var files = <FileSystemEntity>[];
-
-    final dir = Directory(path);
-    final files = dir.listSync().where((file) {
-      bool isFile = FileSystemEntity.isFileSync(file.path);
-      bool isDir = FileSystemEntity.isDirectorySync(file.path);
-
-      var entityName = file.path.split('/').last;
-
-      // Remove directories
-      if (!isFile && !isDir) {
-        return false;
-      } else if (isDir && !showDirectories) {
-        return false;
-      } else if (isFile && !showFiles) {
-        return false;
-      }
-
-      // Don't add hidden files and directories
-      if (entityName.startsWith('.') && !showHidden) {
-        return false;
-      }
-
-      return true;
-    }).toList();
-
-    // Sort alphabetically
-    files.sort((a, b) {
-      return a.name.toLowerCase().compareTo(b.name.toLowerCase());
-    });
-
-    // for (var file in files) {
-    //   bool isFile = FileSystemEntity.isFileSync(file.path);
-    //   // bool isDir = FileSystemEntity.isDirectorySync(file.path);
-
-    //   // Remove the parent directory from the path
-    //   var fileName = file.path.split('/').last;
-
-    //   // Remove directories
-    //   if (!isFile) {
-    //     continue;
-    //   }
-
-    //   // Don't add hidden files and directories
-    //   if (fileName.startsWith('.') && !showHidden) {
-    //     continue;
-    //   }
-
-    //   // filePaths.add(fileName);
-    //   files.add(file);
-    // }
-
-    // return filePaths;
-    return files;
-  }
-
-  static bool isMacOS() {
-    return defaultTargetPlatform == TargetPlatform.macOS;
-  }
-
-  static bool isLinux() {
-    return defaultTargetPlatform == TargetPlatform.linux;
-  }
-
-  static bool isWindows() {
-    return defaultTargetPlatform == TargetPlatform.windows;
-  }
-
-  /// Read environment variables
-  static void readEnv() {
-    final envVars = Platform.environment;
-    envVars.forEach((key, value) {
-      print('$key: $value');
-    });
-  }
-}
-
-extension on FileSystemEntity {
-  /// Name without the path
-  String get name => path.split('/').last;
 }
